@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAppContext } from "../context/AppContext";
+import { useAppContext } from "../../context/AppContext";
 
 const SellerLogin = () => {
   const { isSeller, setIsSeller, navigate } = useAppContext();
@@ -50,6 +50,7 @@ const SellerLogin = () => {
               placeholder="Email id"
               className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
               onChange={(e)=> setEmail(e.target.value)}
+              value={email}
               required
             />
           </div>
@@ -72,6 +73,7 @@ const SellerLogin = () => {
               placeholder="Password"
               className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
               onChange={(e)=> setPassword(e.target.value)}
+              value={password}
               required
             />
           </div>
