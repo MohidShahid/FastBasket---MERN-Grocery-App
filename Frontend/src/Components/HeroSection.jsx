@@ -14,9 +14,9 @@ const HeroSection = () => {
               alt=""
             />
             <img src={hero_banner_sm} className="md:hidden rounded-2xl" alt="" />
-            <div className="absolute md:top-1/4 top-2/4 text-white md:pl-12 pl-6 flex flex-col gap-14">
-              <h1 className="text-4xl leading-14 font-bold text-white">Groceries Made Simple,<br /> Life Made Easy.</h1>
-              <div className="flex gap-7">
+            <div className="absolute md:top-1/4 top-2/4 text-white md:pl-12 pl-6 flex flex-col md:gap-14 gap-8">
+              <h1 className="md:text-4xl text-3xl leading-14 font-bold text-white">Groceries Made Simple,<br /> Life Made Easy.</h1>
+              <div className="flex md:gap-7 gap-4">
                 <button className="cursor-pointer px-8 py-2 bg-[#FF6347] hover:bg-[#e4553d] transition text-white "
                 onClick={()=> navigate('/products')}>
                         Shop Now

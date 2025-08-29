@@ -5,7 +5,7 @@ import BottomBanner from "../Components/BottomBanner";
 import NewsLetter from "../Components/NewsLetter";
 const Home = () => {
   return (
-    <div className="flex flex-col h-auto w-full gap-16 px-6 md:px-16 lg:px-24 xl:px-32 py-4">
+    <div className="flex flex-col h-auto w-full gap-16 px-4 md:px-16 lg:px-24 xl:px-32 py-4">
       <HeroSection />
       <Categories />
       <BestSeller />
