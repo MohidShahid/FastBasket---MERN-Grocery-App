@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 const InputField = ({ placeholder, handleChange, address, name }) => {
   return (
     <input
@@ -14,6 +16,7 @@ const InputField = ({ placeholder, handleChange, address, name }) => {
 };
 
 const AddAddress = () => {
+  const {axios , backendUrl , user} = useAppContext();
   const [address, setAddress] = useState({
     fname: "",
     lname: "",
@@ -34,9 +37,17 @@ const AddAddress = () => {
     }));
   };
 
-  const onSubmitHandler = (e) => {
+  const onSubmitHandler = async(e) => {
     e.preventDefault();
-    console.log(address)
+    try {
+      const {data} = await axios.post(backendUrl + '/api/address/add' , {address , userId : user._id});
+      if(data.success){
+        toast.success(data.message);
+        setAddress(null);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (

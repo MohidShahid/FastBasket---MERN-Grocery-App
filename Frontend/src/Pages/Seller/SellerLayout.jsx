@@ -1,13 +1,28 @@
 import { NavLink, Outlet , Link} from 'react-router-dom';
 import { assets } from '../../assets/greencart_assets/assets';
+import { useAppContext } from '../../context/AppContext';
+import toast from 'react-hot-toast';
 const SellerLayout = () => {
-
+    const {backendUrl , setIsSeller , axios} = useAppContext();
     const sidebarLinks = [
         { name: "Add Product", path: "/seller", icon: assets.add_icon },
         { name: "Product List", path: "/seller/product-list", icon: assets.product_list_icon },
         { name: "Orders", path: "/seller/orders", icon: assets.order_icon },
     ];
+   const handlelogout = async()=>{
+    try {
+      const {data} = await axios.get(backendUrl + '/api/seller/logout');
+      console.log(data);
+      if(data.success){
+        setIsSeller(false);
+        toast.success(data.message);
+      }
+    } catch (error) {
+        console.log(error);
+        toast.error(error.message);
+    }
 
+   }
     return (
         <>
             <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white transition-all duration-300">
@@ -16,7 +31,7 @@ const SellerLayout = () => {
             </Link>
                 <div className="flex items-center gap-5 text-gray-500">
                     <p>Hi! Admin</p>
-                    <button className='border rounded-full text-sm px-4 py-1'>Logout</button>
+                    <button className='border rounded-full text-sm px-4 py-1 cursor-pointer hover:bg-[#f6e0dd]' onClick={handlelogout}>Logout</button>
                 </div>
             </div>
             <div className='flex'>

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 export default function Login() {
-  const { setShowLogin } = useAppContext();
+  const { setShowLogin , axios , setUser, backendUrl } = useAppContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -12,8 +13,38 @@ export default function Login() {
       onClick={() => setShowLogin(false)}
     >
       <form
-        onClick={(e) => e.stopPropagation()}
-        className="max-w-96 w-full text-center border border-gray-300/60 rounded-2xl px-8 bg-white"
+        onClick={(e)=> e.stopPropagation()}
+        onSubmit={async(e) => {
+          e.preventDefault();
+          if(state == "login"){
+          try {
+            const {data} = await axios.post(backendUrl + '/api/user/login' , { email , password});
+            console.log(data)
+            if(data.success){ toast.success("Logged In"); setUser(data.user); setShowLogin(false);
+            }else{
+              toast.error(data.message);
+            }
+          } catch (error) {
+            console.log(error)
+            toast.error(error.message);
+          }
+        }else{
+          try {
+            const {data} =  await axios.post(backendUrl + '/api/user/register' , {name , email , password});
+            if(data.success){
+              toast.success("Register Successfully");
+              setUser(data.user);
+              setShowLogin(false);
+              console.log(data);
+            }else{
+              toast.error(data.message);
+            } 
+          } catch (error) {
+            toast.error(error.message);
+          }
+        }
+        }}
+        className="md:max-w-96 w-5/6 text-center border border-gray-300/60 rounded-2xl px-8 bg-white"
       >
         <h1 className="text-gray-900 text-3xl mt-10 font-medium">
           {state == "login" ? "Login" : "Register"}
@@ -36,7 +67,7 @@ export default function Login() {
               />
             </svg>
             <input
-              type="email"
+              type="text"
               placeholder="Full Name"
               className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
               required
@@ -89,13 +120,13 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-          <div className="mt-5 text-left text-[#FF6347]">
-        {state == "login" && (
+        <div className="mt-5 text-left text-[#FF6347]">
+          {state == "login" && (
             <a className="text-sm" href="#">
               Forgot password?
             </a>
-        )}
-          </div>
+          )}
+        </div>
 
         <button
           type="submit"
@@ -104,13 +135,17 @@ export default function Login() {
           {state == "login" ? "Login" : "Register"}
         </button>
         <div className="mb-11 mt-3">
-        { state == "login" &&
-        <p className="text-gray-500 text-sm cursor-pointer">
-          Don’t have an account?{" "}
-          <a className="text-[#FF6347]" onClick={() => setState("register")}>
-            Sign up
-          </a>
-        </p> }
+          {state == "login" && (
+            <p className="text-gray-500 text-sm cursor-pointer">
+              Don’t have an account?{" "}
+              <a
+                className="text-[#FF6347]"
+                onClick={() => setState("register")}
+              >
+                Sign up
+              </a>
+            </p>
+          )}
         </div>
       </form>
     </div>

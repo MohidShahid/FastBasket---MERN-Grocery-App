@@ -1,32 +1,48 @@
 import React, { useEffect, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { dummyAddress } from '../assets/greencart_assets/assets';
+
 const Cart = () => {
-    const {getCartCount , getCartTotalAmount , navigate , AddToCart , removeCart , currency , products , cartItems , updateCart} = useAppContext();
-    const [SelectedAddress, setSelectedAddress] = useState(dummyAddress[0]);
-    const [addresses , setAddresses] = useState(dummyAddress);
+    const {getCartCount , getCartTotalAmount , navigate , removeCart , currency , products , cartItems , updateCart , axios , backendUrl, user} = useAppContext();
+    const [SelectedAddress, setSelectedAddress] = useState(null);
+    const [addresses , setAddresses] = useState([]);
     const [showAddress , setShowAddress] = useState(false);
     const [cartArray , setCartArray] = useState([]);
     const [paymentMethod , setPaymentMethod] = useState("COD");
-    const [quantity , setQuantity] = useState(null);
 
     const getCartList = ()=>{
         const list = [];
         for(let item in cartItems){
             const product = products.find((product)=> product._id == item);
-            if(product){
-                product.quantity = cartItems[item];
-            }
             list.push(product); 
         }
         setCartArray(list);
     }
 
     const placeOrder = async()=>{
+      try {
+        const {data} = axios.post(backendUrl + '/api/order/cod' , {address : SelectedAddress , items : cartItems})
+      } catch (error) {
+        
+      }
+    }
+
+    const getAddress = async()=>{
+        try {
+        const {data} = await axios.post(backendUrl + '/api/address/get' , {userId : user._id});
+        if(data.success){
+            setAddresses(data.addresses);
+        }
+        } catch (error) {
+            console.log(error.message);
+        }
 
     }
     useEffect(()=>{
-      getCartList();
+        getAddress();
+        if(addresses.length > 0){
+            setSelectedAddress(addresses[0]);
+        }
+        getCartList();
     },[cartItems])
 
     return (
@@ -54,9 +70,8 @@ const Cart = () => {
                                     <p>Size: <span>{product.size || "N/A"}</span></p>
                                     <div className='flex items-center'>
                                         <p>Qty:</p>
-                                        <select className='outline-none' value={quantity || product.quantity} onChange={(e)=>{ const newQuantity = parseInt(e.target.value);
-                                            updateCart(product._id , newQuantity);
-                                            setQuantity(newQuantity);
+                                        <select className='outline-none' value={cartItems[product._id]} onChange={(e)=>{
+                                            updateCart(product._id , parseInt(e.target.value));
                                         }}>
                                             {Array(5).fill('').map((_, index) => (
                                                 <option key={index} value={index + 1}>{index + 1}</option>
@@ -66,8 +81,8 @@ const Cart = () => {
                                 </div>
                             </div>
                         </div>
-                        <p className="text-center">${product.offerPrice * product.quantity}</p>
-                        <button className="cursor-pointer mx-auto" onClick={()=>{ removeCart(product._id); setQuantity((prev)=> prev - 1)}}>
+                        <p className="text-center">${product.offerPrice * cartItems[product._id]}</p>
+                        <button className="cursor-pointer mx-auto" onClick={()=>{ removeCart(product._id); }}>
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="m12.5 7.5-5 5m0-5 5 5m5.833-2.5a8.333 8.333 0 1 1-16.667 0 8.333 8.333 0 0 1 16.667 0" stroke="#FF532E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
@@ -97,8 +112,8 @@ const Cart = () => {
                         </button>
                         {showAddress && (
                             <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full">
-                                {addresses.map((address , index)=>(
-                                    <p onClick={() =>{ setShowAddress(false); setSelectedAddress(address)}} className="text-gray-500 p-2 hover:bg-gray-100 cursor-pointer" key={index}>
+                                {addresses?.map((address , index)=>(
+                                    <p onClick={() =>{ setShowAddress(false); setSelectedAddress(address)}} key={index} className="text-gray-500 p-2 hover:bg-gray-100 cursor-pointer">
                                     {`${address.street}, ${address.city}, ${address.country}`}
                                 </p>
                                 ))}

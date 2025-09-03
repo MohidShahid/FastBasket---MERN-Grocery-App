@@ -3,15 +3,16 @@ const sellerLogin = async(req , res)=>{
     try {
         const {email , password} = req.body;
         if(email == process.env.SELLER_EMAIL && password == process.env.SELLER_PASSWORD){
-          const token = jwt.sign({email} , process.env.JWT_SECRET_KEY , {expiresIn : '7d'});
+          const token =  jwt.sign({email} , process.env.JWT_SECRET_KEY , {expiresIn : '7d'});
           res.cookie("sellerToken" , token , {
+                httpOnly : true,
                 secure : process.env.NODE_ENV === 'production',
                 sameSite : process.env.NODE_ENV === 'production' ? 'none' : 'strict' 
              });
-
-            res.status(201).json({success : true , message : "Logged In"})
+           return res.status(201).json({success : true , message : "Logged In"})
+        }else{
+         res.json({success : false , message : "Invalid Credentials"})
         }
-        res.status(201).json({success : false , message : "Invalid Credentials"})
     } catch (error) {
         console.log("Seller Login Error" , error.message);
         res.status(401).json({success : false , message : error.message})
@@ -28,7 +29,7 @@ const isSellerAuth = async(req , res)=>{
 
 const logout = async(req , res)=>{
     try {
-    res.clearCookie('token' , {
+    res.clearCookie('sellerToken' , {
         httpOnly : true,
         secure : process.env.NODE_ENV === 'production',
         sameSite : process.env.NODE_ENV === 'production' ? 'none' : 'strict' 

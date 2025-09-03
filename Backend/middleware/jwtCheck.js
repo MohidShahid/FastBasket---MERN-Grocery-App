@@ -2,35 +2,30 @@ const jwt = require("jsonwebtoken");
 const key = process.env.JWT_SECRET_KEY;
 
 
-const authUser = async(req , res , next)=>{
-  const {token} = req.cookies;  
-  if(!token){
-    res.status(201).json({message : "No token found"});
-  }
-  jwt.verify(token , key , (err , user)=>{
-    if(err){
-       return res.status(401).send("Unauthorized User");
+const authUser = async (req, res, next) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(201).json({ message: "No token found" });
     }
-    req.user = user;
+    const decoded = jwt.verify(token , key);
+    req.user = decoded;
     next();
-  })
-  
+  } catch (error) {
+    res.status(401).json({ success: false, message: "Invalid Token" });
+  }
 }
 
-const authSeller = async(req , res , next)=>{
-  const {sellerToken} = req.cookies;  
-  if(!sellerToken){
-    res.status(201).json({message : "No token found"});
+const authSeller = async (req, res, next) => {
+  const { sellerToken } = req.cookies;
+  if (!sellerToken) {
+    return res.status(201).json({ message: "No token found" });
   }
-  jwt.verify(sellerToken , key , (err , user)=>{
-    if(err){
-       return res.status(401).send("Unauthorized User");
-    }
-    req.user = user;
+   const decoded = jwt.verify(sellerToken, key);
+
+    req.user = decoded;
     next();
-  })
-  
 }
 
 
-module.exports = {authUser , authSeller};
+module.exports = { authUser, authSeller };

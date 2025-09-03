@@ -2,10 +2,11 @@ import { useContext, createContext, useState, useEffect } from "react";
 import { dummyProducts } from "../assets/greencart_assets/assets";
 import {toast} from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 
 export const AppContext = createContext();
-
+axios.defaults.withCredentials = true;
 export const AppContextProvider = ({ children }) => {
   const [showLogin , setShowLogin] = useState(false);
   const [user , setUser] = useState(null);
@@ -14,6 +15,7 @@ export const AppContextProvider = ({ children }) => {
   const [searchQuery , setSearchQuery] = useState("");
   const [isSeller , setIsSeller] = useState(false); 
   const currency = import.meta.env.VITE_CURRENCY;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
   
     const AddtoCart = (ItemID)=>{
@@ -80,16 +82,61 @@ export const AppContextProvider = ({ children }) => {
     getCartCount,
     getCartTotalAmount,
     isSeller,
-    setIsSeller
+    setIsSeller,
+    backendUrl,
+    axios
   };
-  const fetchProducts =()=>{
-    setProducts(dummyProducts);
+  const fetchProducts = async()=>{
+    try {
+    const {data} = await axios.get(backendUrl + '/api/product/list');
+    if(data.success) setProducts(data.products);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+  const authUser = async()=>{
+    try {
+   const {data} = await axios.get(backendUrl + '/api/user/isAuth');
+   if(data.success)setUser(data.user);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  const authSeller = async()=>{
+    try {
+      const { data } = await axios.get(backendUrl + '/api/seller/isSellerAuth');
+      if(data.success){
+        setIsSeller(true);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
   useEffect(()=>{
+     authUser();
+     authSeller();
      fetchProducts();
+     
   },[])
+  
+  useEffect(()=>{
+    const updateCart = async()=>{
+        try {
+          const {data} = await axios.post(backendUrl + '/api/cart/' , {userId : user._id , cartItems});
+          if(!data.success){
+            toast.error(data.message);
+          }
+        } catch (error) {
+          toast.error(error.message)
+        }
+    }
 
+    if(user){
+      updateCart();
+    }
+  },[cartItems])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

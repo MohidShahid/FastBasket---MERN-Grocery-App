@@ -1,22 +1,58 @@
 import React, { useState } from "react";
 import { assets, categories } from "../../assets/greencart_assets/assets";
-
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 const AddProduct = () => {
-  const [files , setFiles] = useState([]);
-  const [name , setName] = useState("");
-  const [description , setDescription] = useState("");
-  const [category , setCategory] = useState("");
-  const [price , setPrice] = useState("");
-  const [offerPrice , setOfferPrice] = useState("");
+  const [files, setFiles] = useState([]);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [price, setPrice] = useState("");
+  const [offerPrice, setOfferPrice] = useState("");
+  const { axios, backendUrl } = useAppContext();
 
-  const onSubmitHandler = ()=>{
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    console.log(description)
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description.split(","));
+    formData.append("category", category);
+    formData.append("price", price);
+    formData.append("offerPrice", offerPrice);
 
-  }
+    files.forEach((file) => {
+      if (file) formData.append("images", file); // 👈 matches multer's "images"
+    });
+    console.log(formData);
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/product/add",
+        formData
+      );
+      console.log(data);
+      if (data.success) {
+        toast.success(data.message);
+        setName("");
+        setDescription("");
+        setCategory("");
+        setPrice("");
+        setOfferPrice("");
+        setFiles("");
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.log(error.message);
+    }
+  };
   return (
     <div>
       {" "}
       <div className=" flex flex-col justify-between bg-white">
-        <form className="md:p-10 p-4 space-y-5 max-w-lg" onSubmit={onSubmitHandler}>
+        <form
+          className="md:p-10 p-4 space-y-5 max-w-lg"
+          onSubmit={onSubmitHandler}
+        >
           <div>
             <p className="text-base font-medium">Product Image</p>
             <div className="flex flex-wrap items-center gap-3 mt-2">
@@ -27,9 +63,10 @@ const AddProduct = () => {
                     <input
                       accept="image/*"
                       type="file"
+                      name="images"
                       id={`image${index}`}
                       hidden
-                      onChange={(e)=> {
+                      onChange={(e) => {
                         const updatedFiles = [...files];
                         updatedFiles[index] = e.target.files[0];
                         setFiles(updatedFiles);
@@ -37,7 +74,11 @@ const AddProduct = () => {
                     />
                     <img
                       className="max-w-24 cursor-pointer"
-                      src={files[index] ? URL.createObjectURL(files[index]) : assets.upload_area}
+                      src={
+                        files[index]
+                          ? URL.createObjectURL(files[index])
+                          : assets.upload_area
+                      }
                       alt="uploadArea"
                       width={100}
                       height={100}
@@ -56,7 +97,7 @@ const AddProduct = () => {
               placeholder="Type here"
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
               required
-              onChange={(e)=> setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-1 max-w-md">
@@ -70,9 +111,9 @@ const AddProduct = () => {
               id="product-description"
               rows={4}
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40 resize-none"
-              placeholder="Type here"
-              onChange={(e)=> e.target.value}
-            ></textarea>
+              placeholder="Type here (comma separated)"
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
           <div className="w-full flex flex-col gap-1">
             <label className="text-base font-medium" htmlFor="category">
@@ -81,7 +122,7 @@ const AddProduct = () => {
             <select
               id="category"
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-              onChange={(e)=> setCategory(e.target.value)}
+              onChange={(e) => setCategory(e.target.value)}
             >
               <option value="">Select Category</option>
               {categories.map((item, index) => (
@@ -102,7 +143,7 @@ const AddProduct = () => {
                 placeholder="0"
                 className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
                 required
-                onChange={(e)=> setPrice(e.target.value)}
+                onChange={(e) => setPrice(e.target.value)}
               />
             </div>
             <div className="flex-1 flex flex-col gap-1 w-32">
@@ -115,11 +156,14 @@ const AddProduct = () => {
                 placeholder="0"
                 className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
                 required
-                onChange={(e)=> setOfferPrice(e.target.value)}
+                onChange={(e) => setOfferPrice(e.target.value)}
               />
             </div>
           </div>
-          <button className="px-8 py-2.5 bg-[#FF6347] text-white font-medium rounded" type="submit">
+          <button
+            className="px-8 py-2.5 bg-[#FF6347] text-white font-medium rounded cursor-pointer"
+            type="submit"
+          >
             ADD
           </button>
         </form>

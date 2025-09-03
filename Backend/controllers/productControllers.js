@@ -1,16 +1,23 @@
 const Product = require('../models/product');
-const cloudinary = require('../config/cloudinary');
+const {cloudinary} = require('../config/cloudinary');
 
 const AddProduct = async(req , res)=>{
    try {
-    const productData = JSON.parse(req.body.productData);
+    const {name , description , offerPrice , price , category} = req.body;
    const images = req.files;
   let imageUrl = await Promise.all(
     images.map(async (item)=>{
-        let result = await cloudinary.uploader.upload(item.path , {resource_type : 'image'});
+        let result = await cloudinary.uploader.upload(item.path , {resource_type : 'image',
+          folder: "FastBasket", 
+          unique_filename: true, 
+          transformation: [
+            { quality: "auto" },             // compress automatically
+            { fetch_format: "auto" },        // auto -> avif/webp/jpg
+          ],
+        });
         return result.secure_url;
     }))
-    await Product.create({...productData , image : imageUrl});
+    await Product.create({name , description , offerPrice, category, price , image : imageUrl});
     res.status(201).json({success : true , message : "Product Added"})
    } catch (error) {
     console.log("Add Product Error" , error.message);
@@ -20,8 +27,8 @@ const AddProduct = async(req , res)=>{
 
 const ListProducts = async(req , res)=>{
   try {
-      const products = Product.find({});
-      res.status(201).json({success : true , products})
+      const products = await Product.find({});
+      res.status(201).json({success : true , products});
   } catch (error) {
     console.log("Product List Error" , error.message);
     res.status(401).json({success : false , message : error.message});
