@@ -49,7 +49,7 @@ const findProductById = async(req , res)=>{
 const updateStock = async(req , res)=>{
     try {
         const {id , inStock} = req.body;
-        Product.findByIdAndUpdate({id} , {inStock : inStock});
+        await Product.findByIdAndUpdate(id , {inStock : inStock});
         res.status(201).json({success : true , message : "Stock Updated"});
     } catch (error) {
       console.log("Product Stock Error" , error.message);
