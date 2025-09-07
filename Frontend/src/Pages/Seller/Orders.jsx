@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { dummyOrders } from "../../assets/greencart_assets/assets";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const Orders = () => {
+  const {backendUrl , axios} = useAppContext();
+
   const boxIcon =
     "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/e-commerce/boxIcon.svg";
   const [orders, setOrders] = useState([]);
 
   const fetchOrders = async () => {
-    setOrders(dummyOrders);
+    try {
+      const {data} = await axios.get(backendUrl + '/api/order/orders');
+      if(data.success){
+        setOrders(data.orders);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.log(error.message);
+    }
   };
 
   useEffect(() => {

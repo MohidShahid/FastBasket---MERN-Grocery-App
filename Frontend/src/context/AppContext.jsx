@@ -84,7 +84,8 @@ export const AppContextProvider = ({ children }) => {
     isSeller,
     setIsSeller,
     backendUrl,
-    axios
+    axios,
+    setCartItems
   };
   const fetchProducts = async()=>{
     try {

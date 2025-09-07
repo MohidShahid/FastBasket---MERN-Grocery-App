@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { dummyOrders } from "../assets/greencart_assets/assets";
 import { useAppContext } from "../context/AppContext";
 
 const MyOrders = () => {
   const [myOrders, setMyOrders] = useState([]);
-  const { currency } = useAppContext();
-
+  const { currency , axios , backendUrl, user} = useAppContext();
+  console.log(user)
   const fetchOrders = async () => {
-    setMyOrders(dummyOrders);
+       try {
+      const {data} = await axios.post(backendUrl + '/api/order/user-orders' , {userId : user._id});
+      if(data.success){
+        setMyOrders(data.orders);
+        console.log(data.orders);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   useEffect(() => {
-    fetchOrders();
+    if(user && user._id){
+      fetchOrders();
+    }
   }, []);
 
   return (

@@ -44,7 +44,7 @@ const LoginUser = async(req , res)=>{
                 secure : process.env.NODE_ENV === 'production',
                 sameSite : process.env.NODE_ENV === 'production' ? 'none' : 'strict' 
              })
-             return res.status(201).json({success : true , user : {name : user.name , email : user.email}});
+             return res.status(201).json({success : true , user : {_id : user._id , name : user.name , email : user.email}});
            }else{
             return res.json({success : false , message : "Invalid Credentials"})
            }
