@@ -269,8 +269,8 @@ const Cart = () => {
           </p>
           <p className="flex justify-between text-lg font-medium mt-3">
             <span>Total Amount:</span>
-            <span>{`$${
-              getCartTotalAmount() + (getCartTotalAmount() * 2) / 100
+            <span>{`$${Math.floor(
+              getCartTotalAmount() + (getCartTotalAmount() * 2) / 100)
             }`}</span>
           </p>
         </div>

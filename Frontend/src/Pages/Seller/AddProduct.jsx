@@ -13,18 +13,18 @@ const AddProduct = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    console.log(description)
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("description", description.split(","));
     formData.append("category", category);
     formData.append("price", price);
     formData.append("offerPrice", offerPrice);
-
+    description.split(",").forEach((desc) => {
+    formData.append("description[]", desc.trim());
+    });
     files.forEach((file) => {
       if (file) formData.append("images", file); // 👈 matches multer's "images"
     });
-    console.log(formData);
+
     try {
       const { data } = await axios.post(
         backendUrl + "/api/product/add",
@@ -35,10 +35,10 @@ const AddProduct = () => {
         toast.success(data.message);
         setName("");
         setDescription("");
-        setCategory("");
         setPrice("");
         setOfferPrice("");
-        setFiles("");
+        setFiles([]);
+        setCategory("");
       }
     } catch (error) {
       toast.error(error.message);
@@ -89,7 +89,7 @@ const AddProduct = () => {
           </div>
           <div className="flex flex-col gap-1 max-w-md">
             <label className="text-base font-medium" htmlFor="product-name">
-              Product Name
+              Product Name and Quantity
             </label>
             <input
               id="product-name"
@@ -98,6 +98,7 @@ const AddProduct = () => {
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
               required
               onChange={(e) => setName(e.target.value)}
+              value={name}
             />
           </div>
           <div className="flex flex-col gap-1 max-w-md">
@@ -112,6 +113,7 @@ const AddProduct = () => {
               rows={4}
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40 resize-none"
               placeholder="Type here (comma separated)"
+              value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
@@ -123,10 +125,11 @@ const AddProduct = () => {
               id="category"
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
               onChange={(e) => setCategory(e.target.value)}
+              value={category}
             >
               <option value="">Select Category</option>
               {categories.map((item, index) => (
-                <option key={index} value={item.text}>
+                <option key={index} value={item.path}>
                   {item.text}
                 </option>
               ))}
@@ -143,6 +146,7 @@ const AddProduct = () => {
                 placeholder="0"
                 className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
                 required
+                value={price}
                 onChange={(e) => setPrice(e.target.value)}
               />
             </div>
@@ -156,6 +160,7 @@ const AddProduct = () => {
                 placeholder="0"
                 className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
                 required
+                value={offerPrice}
                 onChange={(e) => setOfferPrice(e.target.value)}
               />
             </div>

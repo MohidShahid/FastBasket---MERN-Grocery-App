@@ -11,13 +11,16 @@ const productRoutes = require('./routes/productRoute');
 const cartRoutes = require('./routes/cartRoute');
 const orderRoutes = require('./routes/orderRoute')
 const addressRoutes = require('./routes/addressRoute');
+const { stripWebHooks } = require("./controllers/orderController");
 
 connectDB();
 connectCloudinary();
+const allowedOrigins = [process.env.FRONTEND_URL , 'http://localhost:5174']
 app.use(cors({
-    origin : process.env.FRONTEND_URL,
+    origin : allowedOrigins,
     credentials : true
 }));
+app.post('/stripe' ,express.raw({type : 'application/json'}) , stripWebHooks);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended : true }));

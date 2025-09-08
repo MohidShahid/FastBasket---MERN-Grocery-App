@@ -10,7 +10,7 @@ const Categories = () => {
           return (
             <Link
             key={category.text}
-              to={`/${category.text}`}
+              to={`/${category.path}`}
               className={`p-5 flex flex-col items-center justify-center`}
               style={{backgroundColor : category.bgColor}}
             >
