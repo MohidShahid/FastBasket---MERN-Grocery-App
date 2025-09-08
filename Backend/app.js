@@ -15,11 +15,21 @@ const { stripWebHooks } = require("./controllers/orderController");
 
 connectDB();
 connectCloudinary();
-const allowedOrigins = [process.env.FRONTEND_URL , 'http://localhost:5174']
-app.use(cors({
-    origin : allowedOrigins,
-    credentials : true
-}));
+const allowedOrigins = [process.env.FRONTEND_URL, "http://localhost:5174"].filter(Boolean);
+console.log(process.env.FRONTEND_URL);
+console.log(allowedOrigins);
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.post('/stripe' ,express.raw({type : 'application/json'}) , stripWebHooks);
 app.use(cookieParser());
 app.use(express.json());
